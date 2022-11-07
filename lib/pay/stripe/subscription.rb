@@ -155,6 +155,7 @@ module Pay
       def change_quantity(quantity, **options)
         subscription_item_id = options.fetch(:subscription_item_id, subscription_items&.first&.dig("id"))
         if subscription_item_id
+          options.delete(:subscription_item_id)
           ::Stripe::SubscriptionItem.update(subscription_item_id, options.merge(quantity: quantity), stripe_options)
           @stripe_subscription = nil
         else
@@ -241,12 +242,14 @@ module Pay
       # create_usage_record(subscription_item_id: "si_1234", quantity: 100, action: :set)
       def create_usage_record(**options)
         subscription_item_id = options.fetch(:subscription_item_id, metered_subscription_item&.dig("id"))
+        options.delete(:subscription_item_id)
         ::Stripe::SubscriptionItem.create_usage_record(subscription_item_id, options, stripe_options)
       end
 
       # Returns usage record summaries for a subscription item
       def usage_record_summaries(**options)
         subscription_item_id = options.fetch(:subscription_item_id, metered_subscription_item&.dig("id"))
+        options.delete(:subscription_item_id)
         ::Stripe::SubscriptionItem.list_usage_record_summaries(subscription_item_id, options, stripe_options)
       end
 
